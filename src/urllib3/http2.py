@@ -8,9 +8,9 @@ import h2.config  # type: ignore[import-untyped]
 import h2.connection  # type: ignore[import-untyped]
 import h2.events  # type: ignore[import-untyped]
 
-import urllib3.connection
-import urllib3.util.ssl_
-from urllib3.response import BaseHTTPResponse
+from . import connection
+from .util import ssl_
+from .response import BaseHTTPResponse
 
 from ._collections import HTTPHeaderDict
 from .connection import HTTPSConnection
@@ -216,14 +216,14 @@ class HTTP2Response(BaseHTTPResponse):
 
 def inject_into_urllib3() -> None:
     HTTPSConnectionPool.ConnectionCls = HTTP2Connection
-    urllib3.connection.HTTPSConnection = HTTP2Connection  # type: ignore[misc]
+    connection.HTTPSConnection = HTTP2Connection  # type: ignore[misc]
 
     # TODO: Offer 'http/1.1' as well, but for testing purposes this is handy.
-    urllib3.util.ssl_.ALPN_PROTOCOLS = ["h2"]
+    ssl_.ALPN_PROTOCOLS = ["h2"]
 
 
 def extract_from_urllib3() -> None:
     HTTPSConnectionPool.ConnectionCls = orig_HTTPSConnection
-    urllib3.connection.HTTPSConnection = orig_HTTPSConnection  # type: ignore[misc]
+    connection.HTTPSConnection = orig_HTTPSConnection  # type: ignore[misc]
 
-    urllib3.util.ssl_.ALPN_PROTOCOLS = ["http/1.1"]
+    ssl_.ALPN_PROTOCOLS = ["http/1.1"]
